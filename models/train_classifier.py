@@ -22,32 +22,24 @@ nltk.download(['punkt', 'wordnet', 'averaged_perceptron_tagger'])
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 
-
+# regex to match urls
 url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
 
 
-class StartingVerbExtractor(BaseEstimator, TransformerMixin):
-
-    def starting_verb(self, text):
-        sentence_list = nltk.sent_tokenize(text)
-        for sentence in sentence_list:
-            pos_tags = nltk.pos_tag(tokenize(sentence))
-            first_word, first_tag = pos_tags[0]
-            if first_tag in ['VB', 'VBP'] or first_word == 'RT':
-                return True
-        return False
-
-    def fit(self, x, y=None):
-        return self
-
-    def transform(self, X):
-        X_tagged = pd.Series(X).apply(self.starting_verb)
-        return pd.DataFrame(X_tagged)
-
-
-
 def load_data(database_filepath):
-    engine = create_engine('sqlite:///{}.db'.format(database_filepath))
+    '''
+    Loads the data from the database and splits it into X, y and
+    category_names
+
+    INPUTS
+    database_filepath - string with the database path, e.g. "../my_database.db"
+
+    OUTPUTS
+    X - pandas series with messages column
+    Y - pandas df with labels
+    category_names - labels names
+    '''
+    engine = create_engine('sqlite:///{}'.format(database_filepath))
     df = pd.read_sql("SELECT * FROM disaster_response", engine)
     X = df['message']
     Y = df.drop(columns=['message', 'original', 'genre', 'id'])
@@ -55,6 +47,15 @@ def load_data(database_filepath):
     return np.array(X), np.array(Y), category_names
 
 def tokenize(text):
+    '''
+    Normalize the text, lemmatize and returns tokens
+
+    INPUTS
+    text - string with text to be tokenized
+
+    OUTPUTS
+    clean_tokens - list of tokens
+    '''
     normalized_text = re.sub(r'[^a-zA-Z0-9]',' ', text.lower())
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
@@ -68,6 +69,12 @@ def tokenize(text):
 
 
 def build_model():
+    '''
+    Creates and return the machine learning pipeline
+
+    OUTPUTS
+    cv - model pipeline with GridSearchCV
+    '''
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()), 
@@ -88,6 +95,15 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    '''
+    Measures the model accuracy
+
+    INPUTS
+    model - trained model to be evaluated
+    X_test - model test input series
+    Y_test - model test labels df
+    category_labels - list of category names
+    '''
     y_pred = model.predict(X_test)
     labels = np.unique(y_pred)
     accuracy = (y_pred == Y_test).mean()
@@ -98,6 +114,13 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    '''
+    Saves the model as a joblib file
+
+    INPUTS
+    model - model to be saved
+    model_filepath - path to save the model    
+    '''
     dump(model, '{}.joblib'.format(model_filepath))
 
 

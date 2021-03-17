@@ -3,12 +3,31 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
+    '''
+    Reads the data files and merges it into a df
+
+    INPUTS
+    messages_filepath - string with messages dataset path
+    categories_filepath - string with categories dataset path
+
+    OUTPUTS
+    df - resulting dataframe
+    '''
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     df = messages.merge(categories, on='id')
     return df
 
 def clean_data(df):
+    '''
+    Clean and prepare the data, preparing the categories column and dropping duplicates
+
+    INPUTS
+    df - pandas dataframe to be cleanned
+
+    OUTPUTS
+    df - cleanned df
+    '''
     categories = pd.DataFrame(df['categories'].str.split(';', expand=True))
     colnames = df['categories'].str.split(';', expand=True).iloc[0]\
                                     .apply(lambda x: x.split('-')[0])
@@ -27,7 +46,14 @@ def clean_data(df):
     return df
 
 def save_data(df, database_filename):
-    engine = create_engine('sqlite:///{}.db'.format(database_filename))
+    '''
+    Saves the dataframe into sqlite database
+
+    INPUTS
+    df - pandas dataframe to be saved
+    database_filename - path to save the db
+    '''
+    engine = create_engine('sqlite:///{}'.format(database_filename))
     df.to_sql('disaster_response', engine, index=False)
 
 
