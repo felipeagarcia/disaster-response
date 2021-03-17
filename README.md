@@ -7,9 +7,9 @@ This project consists on a web page built to predict disasters based on text mes
 In order to run this application, you need to install it's depencies. First, you will need Python 3 and Python 3 - Pip already installed
 
 To install the python packages, run on the root folder:
-'''sh
+```sh
 pip install -r requirements.txt
-'''
+```
 
 We recommend to perform this step inside a virtual environment (see https://docs.python.org/3/library/venv.html).
 
