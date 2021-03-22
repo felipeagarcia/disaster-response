@@ -15,15 +15,29 @@ from sqlalchemy import create_engine
 app = Flask(__name__)
 
 def tokenize(text):
+    '''
+    Normalize the text, lemmatize and returns tokens
+
+    INPUTS
+    text - string with text to be tokenized
+
+    OUTPUTS
+    clean_tokens - list of tokens
+    '''
+    # converts to lowercase and remove punctuation
+    normalized_text = re.sub(r'[^a-zA-Z0-9]',' ', text.lower())
+
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
 
+    # lemmatize and tokenize the text
     clean_tokens = []
     for tok in tokens:
         clean_tok = lemmatizer.lemmatize(tok).lower().strip()
         clean_tokens.append(clean_tok)
 
     return clean_tokens
+
 
 # load data
 engine = create_engine('sqlite:///../data/disaster_response.db')
@@ -39,7 +53,6 @@ model = joblib.load("../models/classifier.joblib")
 def index():
     
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
 
@@ -47,7 +60,6 @@ def index():
     category_names = df.drop(columns=['message', 'original', 'genre', 'id']).columns
     
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
             'data': [

@@ -25,3 +25,12 @@ We recommend to perform this step inside a virtual environment (see https://docs
     `python run.py`
 
 3. Go to http://0.0.0.0:3001/
+
+### Files:
+
+- app/ - contains the webpage files
+- app/run.py - the main file to run the app, loads the model and starts the web server
+- data/ - contains the datasets and the datapipeline files
+- data/process_data.py - preprocess the datasets and save the data into a db
+- models/ - contains the machine learning pipeline file
+- models/train_classifier.py - builds the machine learning pipeline, train, evaluate and save the model

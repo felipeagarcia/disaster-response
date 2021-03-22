@@ -28,7 +28,10 @@ def clean_data(df):
     OUTPUTS
     df - cleanned df
     '''
+    # Split the categories columns on ';'
     categories = pd.DataFrame(df['categories'].str.split(';', expand=True))
+
+    # Get the categories names
     colnames = df['categories'].str.split(';', expand=True).iloc[0]\
                                     .apply(lambda x: x.split('-')[0])
     categories.columns = colnames

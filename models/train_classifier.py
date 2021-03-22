@@ -40,9 +40,16 @@ def load_data(database_filepath):
     category_names - labels names
     '''
     engine = create_engine('sqlite:///{}'.format(database_filepath))
+    # create df from db file
     df = pd.read_sql("SELECT * FROM disaster_response", engine)
+
+    # Creates the input df
     X = df['message']
+
+    # Create the labels df
     Y = df.drop(columns=['message', 'original', 'genre', 'id'])
+
+    # Name of each label
     category_names = Y.columns
     return np.array(X), np.array(Y), category_names
 
@@ -56,10 +63,13 @@ def tokenize(text):
     OUTPUTS
     clean_tokens - list of tokens
     '''
+    # converts to lowercase and remove punctuation
     normalized_text = re.sub(r'[^a-zA-Z0-9]',' ', text.lower())
+
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
 
+    # lemmatize and tokenize the text
     clean_tokens = []
     for tok in tokens:
         clean_tok = lemmatizer.lemmatize(tok).lower().strip()
